@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 class BaseCustomer(models.Model):
@@ -44,6 +45,7 @@ class Direction(models.Model):
 
 class Employee(models.Model):
     id_company = models.ForeignKey(Company, on_delete=models.CASCADE, db_column='id_company')
+    login = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField()
     surname = models.CharField()
     patronymic = models.CharField(blank=True, null=True)
@@ -54,6 +56,7 @@ class Employee(models.Model):
     class Meta:
         managed = False
         db_table = 'employee'
+        unique_together = (('id_company', 'login'),)
 
 class Order(models.Model):
     id_customer = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='id_customer')
