@@ -4,6 +4,8 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
+def ex(request):
+    return render(request,"main_page/index.html")
 
 def home(request):
     return render(request,"main_page/home.html")
@@ -22,11 +24,11 @@ def login(request):
 # добавить параметр
 def information_company(request, name):
     data = {"header": "Hello Django", "message": "Welcome to Python"}
-    return render(request,'main_page/index2.html', context=data)
+    return render(request,'main_page/company.html', context=data)
 
 # обязательно логин
 def crm_information(request):
-    return render(request,'main_page/index.html')
+    return render(request,'main_page/dashbord.html')
 
 def crm_orders(request):
     return HttpResponse('crm orders')

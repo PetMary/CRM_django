@@ -10,6 +10,8 @@ crm_patterns = [
 ]
 
 urlpatterns = [
+    path('ex/', views.ex, name='ex'),
+
     path('', views.main_page, name='main'),
     path('home/', views.home, name="home"), #переделать для main ^
     path("signup/", views.SignUp.as_view(), name="signup"),
