@@ -1,112 +1,121 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+def user_directory_path(instance, filename):
+    # путь, куда будет осуществлена загрузка MEDIA_ROOT/user_<id>/<filename>
+    return 'user_{0}/{1}'.format(instance.user.id, filename)
+
 class BaseCustomer(models.Model):
-    id_customer = models.ForeignKey('Customer', on_delete=models.CASCADE, db_column='id_customer')
-    id_company = models.ForeignKey('Company', on_delete=models.CASCADE, db_column='id_company')
+    id_customer = models.ForeignKey('Customer', models.DO_NOTHING)
+    id_company = models.ForeignKey('Company', models.DO_NOTHING)
     start_day = models.DateField(blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.id_customer.name} - {self.id_company.name}"
+
     class Meta:
-        managed = False
-        db_table = 'base_customer'
-        unique_together = (('id_customer', 'id_company'),)
+        unique_together = ('id_customer', 'id_company')
 
 
 class Company(models.Model):
-    id_direction = models.ForeignKey('Direction', on_delete=models.CASCADE, db_column='id_direction')
-    name = models.CharField()
+    id_direction = models.ForeignKey('Direction', models.DO_NOTHING)
+    name = models.CharField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     address = models.CharField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'company'
-
+    def __str__(self):
+        return self.name
 
 class Customer(models.Model):
-    name = models.CharField()
-    surname = models.CharField()
+    name = models.CharField(blank=True, null=True)
+    surname = models.CharField(blank=True, null=True)
     patronymic = models.CharField(blank=True, null=True)
     birthday = models.DateField(blank=True, null=True)
     email = models.CharField(blank=True, null=True)
-    phone = models.CharField()
+    phone = models.CharField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'customer'
+    def __str__(self):
+        return self.name
 
 
 class Direction(models.Model):
-    name = models.CharField()
+    name = models.CharField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'direction'
+    def __str__(self):
+        return self.name
+
 
 class Employee(models.Model):
-    id_company = models.ForeignKey(Company, on_delete=models.CASCADE, db_column='id_company')
-    login = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField()
-    surname = models.CharField()
+    id_company = models.ForeignKey(Company, models.DO_NOTHING)
+    name = models.CharField(blank=True, null=True)
+    surname = models.CharField(blank=True, null=True)
     patronymic = models.CharField(blank=True, null=True)
     birthday = models.DateField(blank=True, null=True)
     email = models.CharField(blank=True, null=True)
-    phone = models.CharField()
+    phone = models.CharField(blank=True, null=True)
+    login_name = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
 
-    class Meta:
-        managed = False
-        db_table = 'employee'
-        unique_together = (('id_company', 'login'),)
+    def __str__(self):
+        return self.name
+
 
 class Order(models.Model):
-    id_customer = models.ForeignKey(Customer, on_delete=models.CASCADE, db_column='id_customer')
-    id_services = models.ForeignKey('Services', on_delete=models.CASCADE, db_column='id_services')
-    date_order = models.DateTimeField()
-    id_status = models.ForeignKey('Status', on_delete=models.CASCADE, db_column='id_status')
-    sum_price = models.IntegerField()
+    id_customer = models.ForeignKey(Customer, models.DO_NOTHING)
+    id_services = models.ForeignKey('Services', models.DO_NOTHING)
+    date_order = models.DateTimeField(blank=True, null=True)
+    id_status = models.ForeignKey('Status', models.DO_NOTHING)
+    sum_price = models.IntegerField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'order'
+    def __str__(self):
+        return f"{self.id_customer.name} - {self.id_services.name}"
 
 
 class Services(models.Model):
-    id_employee = models.ForeignKey(Employee, on_delete=models.CASCADE, db_column='id_employee')
-    name = models.CharField()
+    id_employee = models.ForeignKey(Employee, models.DO_NOTHING)
+    name = models.CharField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    price = models.IntegerField()
-    time = models.TimeField()
-    image = models.BinaryField(blank=True, null=True)
+    price = models.IntegerField(blank=True, null=True)
+    time = models.TimeField(blank=True, null=True)
+    user = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
+    image = models.ImageField(upload_to=user_directory_path)
 
-    class Meta:
-        managed = False
-        db_table = 'services'
+    def __str__(self):
+        return self.name
 
 
 class Status(models.Model):
-    name = models.CharField()
+    name = models.CharField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'status'
+    def __str__(self):
+        return self.name
 
 
 class Timetable(models.Model):
-    id_employee = models.ForeignKey(Employee, on_delete=models.CASCADE, db_column='id_employee')
-    id_week = models.ForeignKey('Week', on_delete=models.CASCADE, db_column='id_week')
-    start_day = models.TimeField()
-    end_day = models.TimeField()
-    break_time = models.TimeField()
+    id_employee = models.ForeignKey(Employee, models.DO_NOTHING)
+    id_week = models.ForeignKey('Week', models.DO_NOTHING)
+    start_day = models.TimeField(blank=True, null=True)
+    end_day = models.TimeField(blank=True, null=True)
+    break_time = models.TimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.id_employee.name} - {self.id_week.name}"
 
     class Meta:
-        managed = False
-        db_table = 'timetable'
-        unique_together = (('id_employee', 'id_week'),)
+        unique_together = ('id_employee', 'id_week')
 
 
 class Week(models.Model):
-    name = models.CharField()
+    name = models.CharField(blank=True, null=True)
 
-    class Meta:
-        managed = False
-        db_table = 'week'
+    def __str__(self):
+        return self.name
+
+class Book(models.Model):
+    user = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
+    title = models.CharField(max_length=150)
+    cover = models.ImageField(upload_to=user_directory_path)
+    book = models.FileField(upload_to='books/')
+
+    def __str__(self):
+        return self.title
+

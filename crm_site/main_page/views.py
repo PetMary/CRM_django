@@ -4,11 +4,16 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
+from .models import Services
+
 def ex(request):
-    return render(request,"main_page/index.html")
+    data = Services.objects.filter(user=request.user.id)
+    return render(request, "main_page/index.html", {'data': data})
 
 def home(request):
     return render(request,"main_page/home.html")
+
+################################
 
 class SignUp(CreateView):
     form_class = UserCreationForm

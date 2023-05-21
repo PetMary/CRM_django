@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.urls import path, include
+from django.conf.urls.static import static
 from . import views
 
 crm_patterns = [
@@ -22,3 +24,6 @@ urlpatterns = [
     path('crm/', include(crm_patterns)),
     # path('crm/dashboard/', views.crm_information, name='crm_main'), # ИЛИ company/name/dashboard
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
