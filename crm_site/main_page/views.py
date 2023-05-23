@@ -1,17 +1,39 @@
+import os
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+import json
 
-from .models import Services
+from .models import Services, Order, Customer
+
 
 def ex(request):
-    data = Services.objects.filter(user=request.user.id)
+    data = Order.objects.filter(user=request.user.id)
+    # добавить для второго графика
+    # chart_2 = {}
+    # for d in data:
+    #     try:
+    #         chart_2[d.id_services.name] += 1
+    #     except KeyError:
+    #         chart_2[d.id_services.name] = 1
+    # new_chart_2 = list(map(list, chart_2.items()))
+    #
+    # try:
+    #     with open("media/user_{0}/data_file.json".format(request.user.id), "w") as write_file:
+    #         json.dump(new_chart_2, write_file)
+    # except FileNotFoundError:
+    #     os.mkdir("media/user_{0}".format(request.user.id))
+    #     with open("media/user_{0}/data_file.json".format(request.user.id), "w") as write_file:
+    #         json.dump(new_chart_2, write_file)
+
     return render(request, "main_page/index.html", {'data': data})
 
+
 def home(request):
-    return render(request,"main_page/home.html")
+    return render(request, "main_page/home.html")
+
 
 ################################
 
@@ -20,32 +42,54 @@ class SignUp(CreateView):
     success_url = reverse_lazy("login")
     template_name = "registration/singup.html"
 
+
 def main_page(request):
     return HttpResponse('main page')
 
-def login(request):
-    return HttpResponse('logon page')
 
 # добавить параметр
 def information_company(request, name):
-    data = {"header": "Hello Django", "message": "Welcome to Python"}
-    return render(request,'main_page/company.html', context=data)
+    data = Services.objects.filter(user=request.user.id)  # поменять на определение по name
+    return render(request, 'main_page/company.html', {'data': data})
+
 
 # обязательно логин
 def crm_information(request):
-    return render(request,'main_page/dashbord.html')
+    data = Order.objects.filter(user=request.user.id)
+    chart_2 = {}
+    for d in data:
+        try:
+            chart_2[d.id_services.name] += 1
+        except KeyError:
+            chart_2[d.id_services.name] = 1
+    new_chart_2 = list(map(list, chart_2.items()))
+
+    try:
+        with open("media/user_{0}/data_file.json".format(request.user.id), "w") as write_file:
+            json.dump(new_chart_2, write_file)
+    except FileNotFoundError:
+        os.mkdir("media/user_{0}".format(request.user.id))
+        with open("media/user_{0}/data_file.json".format(request.user.id), "w") as write_file:
+            json.dump(new_chart_2, write_file)
+
+    return render(request, 'main_page/dashbord.html',{'data': data})
+
 
 def crm_orders(request):
     return HttpResponse('crm orders')
 
+
 def crm_customers(request):
     return HttpResponse('crm customers')
+
 
 def crm_products(request):
     return HttpResponse('crm products')
 
+
 def crm_redirect(request):
     return HttpResponseRedirect("/crm/dashboard")
+
 
 def main_redirect(request):
     return HttpResponseRedirect("/")

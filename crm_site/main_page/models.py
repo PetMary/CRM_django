@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -9,6 +11,7 @@ class BaseCustomer(models.Model):
     id_customer = models.ForeignKey('Customer', models.DO_NOTHING)
     id_company = models.ForeignKey('Company', models.DO_NOTHING)
     start_day = models.DateField(blank=True, null=True)
+    user = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"{self.id_customer.name} - {self.id_company.name}"
@@ -65,10 +68,13 @@ class Order(models.Model):
     date_order = models.DateTimeField(blank=True, null=True)
     id_status = models.ForeignKey('Status', models.DO_NOTHING)
     sum_price = models.IntegerField(blank=True, null=True)
+    user = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f"{self.id_customer.name} - {self.id_services.name}"
 
+    def is_notend(self):
+        return self.date_order.timestamp() >= datetime.now().timestamp()
 
 class Services(models.Model):
     id_employee = models.ForeignKey(Employee, models.DO_NOTHING)
@@ -109,13 +115,3 @@ class Week(models.Model):
 
     def __str__(self):
         return self.name
-
-class Book(models.Model):
-    user = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
-    title = models.CharField(max_length=150)
-    cover = models.ImageField(upload_to=user_directory_path)
-    book = models.FileField(upload_to='books/')
-
-    def __str__(self):
-        return self.title
-

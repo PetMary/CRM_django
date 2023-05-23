@@ -23,7 +23,7 @@ urlpatterns = [
     # path('login/', views.login, name='login_2'),
     path('crm/', include(crm_patterns)),
     # path('crm/dashboard/', views.crm_information, name='crm_main'), # ИЛИ company/name/dashboard
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
