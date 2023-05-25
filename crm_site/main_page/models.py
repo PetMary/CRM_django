@@ -67,7 +67,7 @@ class Order(models.Model):
     id_services = models.ForeignKey('Services', models.DO_NOTHING)
     date_order = models.DateTimeField(blank=True, null=True)
     id_status = models.ForeignKey('Status', models.DO_NOTHING)
-    sum_price = models.IntegerField(blank=True, null=True)
+    # sum_price = models.IntegerField(blank=True, null=True)
     user = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
@@ -75,6 +75,7 @@ class Order(models.Model):
 
     def is_notend(self):
         return self.date_order.timestamp() >= datetime.now().timestamp()
+
 
 class Services(models.Model):
     id_employee = models.ForeignKey(Employee, models.DO_NOTHING)

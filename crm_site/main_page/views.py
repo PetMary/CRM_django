@@ -57,7 +57,7 @@ def information_company(request, name):
 
 @login_required(login_url='login')
 def crm_information(request):
-    data = Order.objects.filter(user=request.user.id)
+    data = Order.objects.filter(user=request.user.id).order_by('date_order')
     chart_1 = {}
     chart_2 = {}
 
@@ -79,7 +79,6 @@ def crm_information(request):
     new_chart_2 = list(map(list, chart_2.items()))
     new_chart_1 = list(map(list, chart_1.items()))
 
-
     try:
         with open("media/user_{0}/data_file_2.json".format(request.user.id), "w") as write_file:
             json.dump(new_chart_2, write_file)
@@ -92,12 +91,14 @@ def crm_information(request):
         with open("media/user_{0}/data_file_1.json".format(request.user.id), "w") as write_file:
             json.dump(new_chart_1, write_file)
 
-    return render(request, 'main_page/dashbord.html',{'data': data})
+    return render(request, 'main_page/dashboard.html', {'data': data})
 
 
 @login_required(login_url='login')
 def crm_orders(request):
-    return HttpResponse('crm orders')
+    data = Order.objects.filter(user=request.user.id).order_by('date_order')
+    name_ser = Services.objects.filter(user=request.user.id)
+    return render(request, 'main_page/orders.html', {'data': data, 'name_ser': name_ser })
 
 
 @login_required(login_url='login')

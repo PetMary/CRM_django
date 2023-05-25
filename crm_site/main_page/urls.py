@@ -16,10 +16,8 @@ urlpatterns = [
 
     path('', views.home, name="home"),
     path("signup/", views.SignUp.as_view(), name="signup"),
-
     path('company/', views.main_redirect, name='main_redirect'),
     path('company/<str:name>', views.information_company, name='information_company'),
-    # path('login/', views.login, name='login_2'),
     path('crm/', include(crm_patterns)),
     # path('crm/dashboard/', views.crm_information, name='crm_main'), # ИЛИ company/name/dashboard
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

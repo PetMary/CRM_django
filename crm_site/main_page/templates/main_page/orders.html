@@ -4,74 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CRM-Dashbord</title>
+    <title>CRM-Orders</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    <!--    <link href="https://bootstrap-4.ru/docs/5.3/examples/dashboard/dashboard.css" rel="stylesheet">-->
 </head>
 <style>
     *{font-family: "Comic Sans MS", cursive, sans-serif;}
 
 </style>
-<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-<script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
-
-<script type="text/javascript">
-window.onload = function () {
-
-    var dataPoints_1 = [];
-    var chart_1 = new CanvasJS.Chart("chartContainer1",{
-	    theme: "light2",
-		title:{
-			text: "Количество записей",
-			fontFamily:  "Comic Sans MS"
-		},
-		data: [
-		{
-			type: "line",
-            dataPoints : dataPoints_1,
-        }]
-    });
-
-    $.getJSON("{% static '../media/user_' %}{{user.id}}/data_file_1.json", function(data) {
-        $.each(data, function(key, value){
-            dataPoints_1.push({label: value[0], y: parseInt(value[1])});
-        });
-        chart_1.render();
-    });
-
-
-    var dataPoints_2 = [];
-    var chart_2 = new CanvasJS.Chart("chartContainer2",{
-	    theme: "light2",
-		title:{
-			text: "Востребованность",
-			fontFamily:  "Comic Sans MS"
-		},
-		legend: {
-			maxWidth: 350,
-			itemWidth: 120,
-			fontFamily:  "Comic Sans MS"
-		},
-		data: [
-		{
-			type: "pie",
-			showInLegend: true,
-			legendText: "{indexLabel}",
-            dataPoints : dataPoints_2,
-        }]
-    });
-
-    $.getJSON("{% static '../media/user_' %}{{user.id}}/data_file_2.json", function(data) {
-        $.each(data, function(key, value){
-            dataPoints_2.push({indexLabel: value[0], y: parseInt(value[1])});
-        });
-        chart_2.render();
-    });
-
-}
-
-</script>
 
 <body>
 
@@ -97,7 +37,7 @@ window.onload = function () {
             <div class="position-sticky pt-3 sidebar-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">
+                        <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round" class="feather feather-home align-text-bottom"
@@ -121,7 +61,7 @@ window.onload = function () {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'products' %}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round" class="feather feather-shopping-cart align-text-bottom"
@@ -134,7 +74,7 @@ window.onload = function () {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'customers' %}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                  stroke-linejoin="round" class="feather feather-users align-text-bottom"
@@ -161,25 +101,12 @@ window.onload = function () {
                 </div>
             </div>
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Dashboard</h1>
-            </div>
-
-            <!--график-->
-            <div class="container-fluid">
-                <div class="row mb-5 justify-content-between" style=" height: 400px;">
-
-                    <div class="col-md-6 col-sm-12 chartjs-render-monitor" id="chartContainer1"
-                         style="position: static; display: block;"></div>
-                    <div class="col-md-6 col-sm-12 chartjs-render-monitor" id="chartContainer2"
-                         style="position: static; display: block;"></div>
-
-
-                </div>
+                <h1 class="h2">Orders</h1>
             </div>
 
             <!--заказы-->
 
-            <h2>Orders</h2>
+            <h2>Current orders</h2>
             <div class="table-responsive">
                 <table class="table table-striped table-sm">
                     <thead>
@@ -189,6 +116,7 @@ window.onload = function () {
                         <th scope="col">Servise</th>
                         <th scope="col">Date</th>
                         <th scope="col">Time</th>
+                        <th scope="col">Price</th>
                     </tr>
                     </thead>
 
@@ -201,20 +129,40 @@ window.onload = function () {
                         <td>{{b.id_services.name}}</td>
                         <td>{{ b.date_order.date }}</td>
                         <td>{{ b.date_order.time|date:"H:i" }}</td>
+                        <td>{{ b.id_services.price }}</td>
                     </tr>
                     {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <script>
+            window.onload = function () {
+                var select_name = document.getElementById("jqueryselect").value;
+                var selected = $('#jqueryselect option:selected').text();
+
+
+                iddiv.innerHTML="dfghjk";
+}
+            </script>
+
+            <div id="iddiv"></div>
+
+            <select class="form-select" id="jqueryselect">
+                <option value="all">ВСЕ</option>
+                {% for b in name_ser %}
+                <option value={{b.name}}>{{b.name}}</option>
+                {% endfor %}
+            </select>
+
+
         </main>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
-        integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"
-        integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha"
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
 
 </body>
