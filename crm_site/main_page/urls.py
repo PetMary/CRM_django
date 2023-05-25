@@ -14,12 +14,11 @@ crm_patterns = [
 urlpatterns = [
     path('ex/', views.ex, name='ex'),
 
-    path('', views.main_page, name='main'),
-    path('home/', views.home, name="home"), #переделать для main ^
+    path('', views.home, name="home"),
     path("signup/", views.SignUp.as_view(), name="signup"),
 
     path('company/', views.main_redirect, name='main_redirect'),
-    path('company/<str:name>', views.information_company, name='information_company'), #изменить int на str название компании
+    path('company/<str:name>', views.information_company, name='information_company'),
     # path('login/', views.login, name='login_2'),
     path('crm/', include(crm_patterns)),
     # path('crm/dashboard/', views.crm_information, name='crm_main'), # ИЛИ company/name/dashboard

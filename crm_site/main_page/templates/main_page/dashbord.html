@@ -15,45 +15,30 @@
 </style>
 <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+
 <script type="text/javascript">
 window.onload = function () {
-	var chart1 = new CanvasJS.Chart("chartContainer", {
-        theme: "light2",
-		title: {
+
+    var dataPoints_1 = [];
+    var chart_1 = new CanvasJS.Chart("chartContainer1",{
+	    theme: "light2",
+		title:{
 			text: "Количество записей",
 			fontFamily:  "Comic Sans MS"
 		},
 		data: [
 		{
-			type: "spline",
-			dataPoints: [
-				{ label: "January",  y: 9  },
-				{ label: "February", y: 5  },
-				{ label: "March", y: 8  },
-				{ label: "April",  y: 7  },
-				{ label: "May",  y: 3  }
-			]
-		}
-		]
-	});
+			type: "line",
+            dataPoints : dataPoints_1,
+        }]
+    });
 
-	$("#addDataPoint").click(function () {
-
-	var length = chart1.options.data[0].dataPoints.length;
-	chart1.options.title.text = "New DataPoint Added at the end";
-	chart1.options.data[0].dataPoints.push({ y: 25 - Math.random() * 10});
-	chart1.render();
-
-	});
-
-	$("#updateDataPoint").click(function () {
-
-	var length = chart1.options.data[0].dataPoints.length;
-	chart1.options.title.text = "Last DataPoint Updated";
-	chart1.options.data[0].dataPoints[length-1].y = 15 - Math.random() * 10;
-	chart1.render();
-
-	});
+    $.getJSON("{% static '../media/user_' %}{{user.id}}/data_file_1.json", function(data) {
+        $.each(data, function(key, value){
+            dataPoints_1.push({label: value[0], y: parseInt(value[1])});
+        });
+        chart_1.render();
+    });
 
 
     var dataPoints_2 = [];
@@ -77,14 +62,13 @@ window.onload = function () {
         }]
     });
 
-    $.getJSON("{% static '../media/user_' %}{{user.id}}/data_file.json", function(data) {
+    $.getJSON("{% static '../media/user_' %}{{user.id}}/data_file_2.json", function(data) {
         $.each(data, function(key, value){
             dataPoints_2.push({indexLabel: value[0], y: parseInt(value[1])});
         });
         chart_2.render();
     });
 
-	chart1.render();
 }
 
 </script>
@@ -184,7 +168,7 @@ window.onload = function () {
             <div class="container-fluid">
                 <div class="row mb-5 justify-content-between" style=" height: 400px;">
 
-                    <div class="col-md-6 col-sm-12 chartjs-render-monitor" id="chartContainer"
+                    <div class="col-md-6 col-sm-12 chartjs-render-monitor" id="chartContainer1"
                          style="position: static; display: block;"></div>
                     <div class="col-md-6 col-sm-12 chartjs-render-monitor" id="chartContainer2"
                          style="position: static; display: block;"></div>
