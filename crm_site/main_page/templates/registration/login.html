@@ -18,18 +18,18 @@
 <main class="form-signin w-100 m-auto">
     <form method="post">
         <img src="{% static 'img/my_logo.png' %}" alt="My image" width="150" height="57">
-      {% csrf_token %}
+        {% csrf_token %}
         <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
         {% if form.errors %}
         <p>Your username and password didn't match. Please try again.</p>
         {% endif %}
-        <div class="form-floating">
+        <div class="form-floating mb-3">
             <div class="form-row">
             <input type="text" class="form-control" name="username" id="your-username" class="input-text" placeholder="username" required>
             </div>
         </div>
 
-        <div class="form-floating">
+        <div class="form-floating mb-3">
             <div class="form-row">
             <input type="password" class="form-control" name="password" id="your-password" class="input-text" placeholder="password" required>
             </div>
