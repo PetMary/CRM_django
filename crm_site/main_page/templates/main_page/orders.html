@@ -49,6 +49,25 @@
     }
 </style>
 
+<style>
+    .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup-content {
+        background-color: #fff;
+        padding: 20px 100px 20px 100px;
+    }
+</style>
+
 <body>
 
 <header class="navbar navbar-light sticky-top bg-light flex-md-nowrap p-0 shadow">
@@ -66,6 +85,44 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var popupLink = document.querySelector(".popup-link");
+        var popup = document.querySelector("#popup");
+
+        popupLink.addEventListener("click", function(e) {
+            e.preventDefault();
+            popup.style.display = "flex";
+        });
+
+        popup.addEventListener("click", function(e) {
+            if (e.target === popup) {
+                popup.style.display = "none";
+            }
+        });
+    });
+
+
+    $(document).ready(function() {
+        $('form').submit(function(event) {
+            var isEmpty = false;
+
+            // Проверка пустых полей
+            $(this).find('input[type="text"], input[type="date"], input[type="time"]').each(function() {
+                if ($(this).val() === '') {
+                    isEmpty = true;
+                    return false; // Выход из цикла, если найдено пустое поле
+                }
+            });
+
+            if (isEmpty) {
+                event.preventDefault(); // Предотвращение отправки формы
+                alert('Пожалуйста, заполните все поля.');
+            }
+        });
+    });
+</script>
 
 <div class="container-fluid">
     <div class="row">
@@ -140,6 +197,66 @@
                 <h1 class="h2">Orders</h1>
             </div>
 
+            <!--новый заказ-->
+
+            <div class="row justify-content-between">
+                <div class="col-4">
+                    {% if messages %}
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li
+                                {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                <div class="text-end col-4">
+                    <a class="btn btn-info btm-sm popup-link" type="button" href="#popup">Добавить +</a>
+                </div>
+            </div>
+
+
+            <div id="popup" class="popup">
+                <div class="popup-content">
+                    <h2>Новый заказ</h2>
+
+                    <form method="post" action="{% url 'create_order' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="customer" class="form-label">Клиент:</label>
+                            <select id="customer" name="customer" class="form-control" required>
+                                {% for c in customers %}
+                                <option value="{{ c.id_customer }}">{{ c.id_customer__name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="service" class="form-label">Услуга:</label>
+                            <select id="service" name="service" class="form-control">
+                                {% for s in services %}
+                                <option value="{{ s.id }}">{{ s.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Дата:</label>
+                            <input type="date" id="date" name="date" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="time" class="form-label">Время:</label>
+                            <input type="time" id="time" name="time" class="form-control">
+                        </div>
+
+                        <div class="d-flex justify-content-center">
+                            <input class="btn btn-info" type="submit" value="Создать заказ">
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+
             <!--заказы-->
 
             <h2>Current orders</h2>
@@ -204,17 +321,11 @@
                         <td>{{ b.id_services.price }}</td>
                     </tr>
                     {% endfor %}
-                    <!-- Дополнительные строки и ячейки таблицы -->
                 </table>
             </div>
 
         </main>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-        crossorigin="anonymous"></script>
-
 </body>
 </html>

@@ -9,6 +9,8 @@ crm_patterns = [
     path("orders/", views.crm_orders, name='orders'),
     path("customers/", views.crm_customers, name='customers'),
     path("products/", views.crm_products, name='products'),
+
+    path('create_order/', views.create_order, name='create_order'),
 ]
 
 urlpatterns = [
