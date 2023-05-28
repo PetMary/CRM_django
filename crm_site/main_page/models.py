@@ -30,12 +30,12 @@ class Company(models.Model):
         return self.name
 
 class Customer(models.Model):
-    name = models.CharField(blank=True, null=True)
+    name = models.CharField()
     surname = models.CharField(blank=True, null=True)
     patronymic = models.CharField(blank=True, null=True)
     birthday = models.DateField(blank=True, null=True)
     email = models.CharField(blank=True, null=True)
-    phone = models.CharField(blank=True, null=True)
+    phone = models.CharField()
 
     def __str__(self):
         return self.name
@@ -100,15 +100,16 @@ class Status(models.Model):
 class Timetable(models.Model):
     id_employee = models.ForeignKey(Employee, models.DO_NOTHING)
     id_week = models.ForeignKey('Week', models.DO_NOTHING)
+    date = models.DateField(blank=True, null=True)
     start_day = models.TimeField(blank=True, null=True)
     end_day = models.TimeField(blank=True, null=True)
     break_time = models.TimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.id_employee.name} - {self.id_week.name}"
+        return f"{self.id_employee.name} - {self.date}"
 
     class Meta:
-        unique_together = ('id_employee', 'id_week')
+        unique_together = ('id_employee', 'date')
 
 
 class Week(models.Model):

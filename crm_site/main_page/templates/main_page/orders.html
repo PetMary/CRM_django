@@ -1,5 +1,6 @@
 <!doctype html>
 {% load static %}
+{% load tz %}
 <html lang="ru">
 <head>
     <meta charset="utf-8">
@@ -47,6 +48,7 @@
         }
 
     }
+
 </style>
 
 <style>
@@ -66,6 +68,7 @@
         background-color: #fff;
         padding: 20px 100px 20px 100px;
     }
+
 </style>
 
 <body>
@@ -104,24 +107,6 @@
     });
 
 
-    $(document).ready(function() {
-        $('form').submit(function(event) {
-            var isEmpty = false;
-
-            // Проверка пустых полей
-            $(this).find('input[type="text"], input[type="date"], input[type="time"]').each(function() {
-                if ($(this).val() === '') {
-                    isEmpty = true;
-                    return false; // Выход из цикла, если найдено пустое поле
-                }
-            });
-
-            if (isEmpty) {
-                event.preventDefault(); // Предотвращение отправки формы
-                alert('Пожалуйста, заполните все поля.');
-            }
-        });
-    });
 </script>
 
 <div class="container-fluid">
@@ -233,7 +218,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="service" class="form-label">Услуга:</label>
-                            <select id="service" name="service" class="form-control">
+                            <select id="service" name="service" class="form-control" required>
                                 {% for s in services %}
                                 <option value="{{ s.id }}">{{ s.name }}</option>
                                 {% endfor %}
@@ -241,11 +226,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="date" class="form-label">Дата:</label>
-                            <input type="date" id="date" name="date" class="form-control">
+                            <input type="date" id="date" name="date" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label for="time" class="form-label">Время:</label>
-                            <input type="time" id="time" name="time" class="form-control">
+                            <input type="time" id="time" name="time" class="form-control" required>
                         </div>
 
                         <div class="d-flex justify-content-center">
@@ -281,7 +266,10 @@
                         <td>{{b.id_customer.name}}</td>
                         <td>{{b.id_services.name}}</td>
                         <td>{{ b.date_order.date }}</td>
-                        <td>{{ b.date_order.time|date:"H:i" }}</td>
+                        <td>{% localtime on %}
+                            {{ b.date_order|time }}
+                            {% endlocaltime %}
+                        </td>
                         <td>{{ b.id_services.price }}</td>
                     </tr>
                     {% endif %}
@@ -316,8 +304,11 @@
                         <td>{{b.id}}</td>
                         <td>{{b.id_customer.name}}</td>
                         <td>{{b.id_services.name}}</td>
-                        <td>{{ b.date_order.date |date:"Y-m-d" }}</td>
-                        <td>{{ b.date_order.time |date:"H:i:s" }}</td>
+                        <td>{{ b.date_order.date  }}</td>
+                        <td>{% localtime on %}
+                            {{ b.date_order|time }}
+                            {% endlocaltime %}
+                        </td>
                         <td>{{ b.id_services.price }}</td>
                     </tr>
                     {% endfor %}

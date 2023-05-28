@@ -1,5 +1,6 @@
 <!doctype html>
 {% load static %}
+{% load tz %}
 <html lang="ru">
 <head>
     <meta charset="utf-8">
@@ -200,7 +201,10 @@ window.onload = function () {
                         <td>{{b.id_customer.name}}</td>
                         <td>{{b.id_services.name}}</td>
                         <td>{{ b.date_order.date }}</td>
-                        <td>{{ b.date_order.time|date:"H:i" }}</td>
+                        <td>{% localtime on %}
+                            {{ b.date_order|time }}
+                            {% endlocaltime %}
+                        </td>
                     </tr>
                     {% endif %}
                     {% endfor %}
