@@ -198,6 +198,11 @@ def information_company(request, name):
     except ObjectDoesNotExist:
         return main_redirect(request)
 
+def json_date_handler(obj):
+    if hasattr(obj, 'isoformat'):
+        return obj.isoformat()
+    else:
+        raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
 @login_required(login_url='login')
 def crm_information(request):
@@ -246,12 +251,6 @@ def crm_orders(request):
                                                                                      'date_order__date',
                                                                                      'date_order__time',
                                                                                      'id_services__price', )
-
-    def json_date_handler(obj):
-        if hasattr(obj, 'isoformat'):
-            return obj.isoformat()
-        else:
-            raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
     json_data = json.dumps(list(data), default=json_date_handler)
 
