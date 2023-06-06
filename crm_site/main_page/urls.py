@@ -11,6 +11,7 @@ crm_patterns = [
     path("products/", views.crm_products, name='products'),
 
     path('create_order/', views.create_order, name='create_order'),
+    path('create_customer/', views.create_customer, name='create_customer'),
     path('find_time/', views.find_time, name='find_time'),
 ]
 

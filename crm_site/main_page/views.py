@@ -53,14 +53,33 @@ def create_order(request):
             customer_name = request.POST.get('name')
             customer_phone = request.POST.get('phone')
             find_customer = Customer.objects.filter(phone=customer_phone)
+
+            user = User.objects.get(id=service.id_employee.login_name.id)
+
             print(find_customer)
             if find_customer.count() == 0:
                 customer = Customer.objects.create(name=customer_name, phone=customer_phone)
                 customer.save()
+                base_customer = BaseCustomer.objects.create(id_customer=customer,
+                                                            id_company=service.id_employee.id_company,
+                                                            start_day=datetime.now(), user=user)
+                base_customer.save()
             else:
-                customer = find_customer[0]
+                key = 0
+                company_customer = BaseCustomer.objects.filter(user=user)
+                for i in range(find_customer.count()):
+                    if company_customer.filter(id_customer=find_customer[i].id).exists():
+                        customer = find_customer[i]
+                        key = 1
+                        break
+                if key != 1:
+                    customer = Customer.objects.create(name=customer_name, phone=customer_phone)
+                    customer.save()
 
-            user = User.objects.get(id=service.id_employee.login_name.id)
+                    base_customer = BaseCustomer.objects.create(id_customer=customer, id_company=service.id_employee.id_company,
+                                                                start_day=datetime.now(), user=user)
+                    base_customer.save()
+
 
         date_str = request.POST.get('date')
         time_str = request.POST.get('time')
@@ -78,7 +97,6 @@ def create_order(request):
         print(order)
         messages.success(request, 'Запись сохранена.')
 
-        # Перенаправьте пользователя на страницу с подтверждением или другую нужную вам страницу
         if request.user.is_authenticated:
             return HttpResponseRedirect("/crm/orders/")
         else:
@@ -147,7 +165,7 @@ def find_time(request):
         response_data = {
             'time': time_start,
             'date': date,
-            'availableTime': f'\nс {timetable.start_day} до {time_end_order}'  # Пример доступного времени
+            'availableTime': f'\nс {timetable.start_day} до {time_end_order}'
         }
 
         return JsonResponse(response_data)
@@ -169,12 +187,62 @@ def find_time(request):
         return JsonResponse(response_data)
 
 
+@require_http_methods(["POST"])
+def create_customer(request):
+    if request.method == 'POST':
+        customer_name = request.POST.get('name')
+        customer_surname = request.POST.get('surname')
+        customer_patronymic = request.POST.get('patronymic')
+        customer_phone = request.POST.get('phone')
+        customer_birthday = request.POST.get('birthday')
+        if customer_birthday != '':
+            customer_birthday = datetime.strptime(customer_birthday, '%Y-%m-%d').date()
+        else:
+            customer_birthday = None
+        if customer_patronymic == '':
+            customer_patronymic = None
+
+        employee = Employee.objects.get(login_name=request.user.id)
+        user = User.objects.get(id=request.user.id)
+        company_customer = BaseCustomer.objects.filter(user=request.user.id)
+        find_customer = Customer.objects.filter(phone=customer_phone)
+        print(find_customer)
+        if find_customer.count() == 0:
+            customer = Customer.objects.create(name=customer_name, surname=customer_surname,
+                                               patronymic=customer_patronymic,
+                                               birthday=customer_birthday, phone=customer_phone)
+            customer.save()
+
+            base_customer = BaseCustomer.objects.create(id_customer=customer, id_company=employee.id_company,
+                                                        start_day=datetime.now(), user=user)
+            base_customer.save()
+        else:
+            for i in range(find_customer.count()):
+                if company_customer.filter(id_customer=find_customer[i].id).exists():
+                    messages.success(request, 'Пользователь с таким номером уже существует')
+                    return HttpResponseRedirect("/crm/customers/")
+
+            customer = Customer.objects.create(name=customer_name, surname=customer_surname,
+                                               patronymic=customer_patronymic,
+                                               birthday=customer_birthday, phone=customer_phone)
+            customer.save()
+
+            base_customer = BaseCustomer.objects.create(id_customer=customer, id_company=employee.id_company,
+                                                        start_day=datetime.now(), user=user)
+            base_customer.save()
+
+        messages.success(request, 'Клиент добавлен.')
+        return HttpResponseRedirect("/crm/customers/")
+
+    return render(request, 'main_page/customers.html')
+
+
 def ex(request):
     # data = Order.objects.filter(user=request.user.id)
-    customers = BaseCustomer.objects.filter(user=request.user.id).values('id_customer', 'id_customer__name', )
-    services = Services.objects.filter(user=request.user.id)
+    customers = BaseCustomer.objects.filter(user=request.user.id)
 
-    return render(request, 'main_page/index.html', {'services': services, 'customers': customers})
+    return render(request, 'main_page/index.html', {'customers': customers})
+
 
 ################################
 
@@ -198,15 +266,19 @@ def information_company(request, name):
     except ObjectDoesNotExist:
         return main_redirect(request)
 
+
 def json_date_handler(obj):
     if hasattr(obj, 'isoformat'):
         return obj.isoformat()
     else:
         raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
+
 @login_required(login_url='login')
 def crm_information(request):
     data = Order.objects.filter(user=request.user.id).order_by('date_order')
+    employee = Employee.objects.get(login_name=request.user.id)
+
     chart_1 = {}
     chart_2 = {}
 
@@ -240,11 +312,12 @@ def crm_information(request):
         with open("media/user_{0}/data_file_1.json".format(request.user.id), "w") as write_file:
             json.dump(new_chart_1, write_file)
 
-    return render(request, 'main_page/dashboard.html', {'data': data})
+    return render(request, 'main_page/dashboard.html', {'data': data, 'employee': employee})
 
 
 @login_required(login_url='login')
 def crm_orders(request):
+    employee = Employee.objects.get(login_name=request.user.id)
     data1 = Order.objects.filter(user=request.user.id).order_by('-date_order')
     data = Order.objects.filter(user=request.user.id).order_by('-date_order').values('id', 'id_customer__name',
                                                                                      'id_services__name',
@@ -260,12 +333,15 @@ def crm_orders(request):
     services = Services.objects.filter(user=request.user.id)
 
     return render(request, 'main_page/orders.html', {'data': data1, 'json_data': json_data, 'name_ser': name_ser,
-                                                     'services': services, 'customers': customers})
+                                                     'services': services, 'customers': customers, 'employee': employee})
 
 
 @login_required(login_url='login')
 def crm_customers(request):
-    return HttpResponse('crm customers')
+    customers = BaseCustomer.objects.filter(user=request.user.id)
+    employee = Employee.objects.get(login_name=request.user.id)
+
+    return render(request, 'main_page/customers.html', {'customers': customers, 'employee': employee})
 
 
 @login_required(login_url='login')
