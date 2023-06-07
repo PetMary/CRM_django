@@ -76,10 +76,10 @@ def create_order(request):
                     customer = Customer.objects.create(name=customer_name, phone=customer_phone)
                     customer.save()
 
-                    base_customer = BaseCustomer.objects.create(id_customer=customer, id_company=service.id_employee.id_company,
+                    base_customer = BaseCustomer.objects.create(id_customer=customer,
+                                                                id_company=service.id_employee.id_company,
                                                                 start_day=datetime.now(), user=user)
                     base_customer.save()
-
 
         date_str = request.POST.get('date')
         time_str = request.POST.get('time')
@@ -262,7 +262,7 @@ def information_company(request, name):
         company = Company.objects.get(name=name)
         data = Services.objects.filter(id_employee__id_company__name=name)
 
-        return render(request, 'main_page/company.html', {'data': data})
+        return render(request, 'main_page/company.html', {'data': data, 'company': company})
     except ObjectDoesNotExist:
         return main_redirect(request)
 
@@ -333,7 +333,8 @@ def crm_orders(request):
     services = Services.objects.filter(user=request.user.id)
 
     return render(request, 'main_page/orders.html', {'data': data1, 'json_data': json_data, 'name_ser': name_ser,
-                                                     'services': services, 'customers': customers, 'employee': employee})
+                                                     'services': services, 'customers': customers,
+                                                     'employee': employee})
 
 
 @login_required(login_url='login')
